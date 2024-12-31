@@ -61,6 +61,9 @@ async function processFile() {
       filesToProcess.value[i].progress += 5000;
     }
   }
+
+  // Emit:
+  emit("uploaded");
 }
 </script>
 
@@ -82,7 +85,7 @@ async function processFile() {
         <div class="w-full bg-gray-200 rounded-full dark:bg-gray-700">
           <div
             class="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
-            :style="{ width: file.count ? Math.min(1, Math.round(file.progress / file.count)) * 100 + '%' : '0%' }"
+            :style="{ width: file.count ? Math.min(1, file.progress / file.count) * 100 + '%' : '0%' }"
           ></div>
         </div>
       </div>

@@ -18,6 +18,7 @@ export function mapToInsert(data: any[]): SpotifyRecord[] {
         master_metadata_album_artist_name: row.master_metadata_album_artist_name,
         master_metadata_album_album_name: row.master_metadata_album_album_name,
         spotify_track_uri: row.spotify_track_uri,
+        skipped: row.skipped,
       } as SpotifyRecord)
   );
 }

@@ -5,7 +5,9 @@ import { useAppStore } from "./stores/useAppStore";
 
 const appStore = useAppStore();
 
-onMounted(appStore.init);
+onMounted(() => {
+  appStore.init();
+});
 </script>
 
 <template>

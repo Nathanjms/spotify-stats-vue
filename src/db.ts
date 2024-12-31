@@ -17,12 +17,14 @@ export async function initDb() {
       table.string("master_metadata_album_artist_name");
       table.string("master_metadata_album_album_name");
       table.string("spotify_track_uri");
+      table.boolean("skipped");
 
       table.index("ts");
       table.index("master_metadata_track_name");
       table.index("master_metadata_album_artist_name");
       table.index("master_metadata_album_album_name");
       table.index("spotify_track_uri");
+      table.index("skipped");
     });
   }
 }

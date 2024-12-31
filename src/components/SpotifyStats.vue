@@ -7,65 +7,44 @@ import DataUpload from "./DataUpload.vue";
 
 const fileInput = ref(null);
 
-onMounted(search);
+onMounted(searchTopSongs);
 
-const searchQuery = ref("");
+const searchTopSongsQuery = ref("");
 const totalRows = ref(0);
 const dbTableData = ref([]);
-
-const inserting = ref(false);
-const progress = ref(0);
-async function insertRows(data: SpotifyRecord[]) {
-  inserting.value = true;
-  progress.value = 0;
-  try {
-    await spotifyDataHelper.insertRows(data);
-  } catch (error) {
-    alert(error);
-  } finally {
-    inserting.value = false;
-  }
-}
 
 async function truncateTable() {
   try {
     await new SpotifyModel().truncate();
-    await search();
+    await searchTopSongs();
   } catch (error) {
     alert(error);
   }
 }
 
-async function search() {
+async function searchTopSongs() {
   try {
-    const query = new SpotifyModel().query();
-    if (searchQuery.value) {
-      query.where("master_metadata_album_artist_name", "ilike", `%${searchQuery.value}%`);
-    }
-    const rows = await query.select("*").limit(50000)
+    const topSongs = await new SpotifyModel().getTopSongs(searchTopSongsQuery.value);
+    console.log({ topSongs });
+
+    // const query = new SpotifyModel().query();
+    // if (searchTopSongsQuery.value) {
+    //   query.where("master_metadata_album_artist_name", "ilike", `%${searchTopSongsQuery.value}%`);
+    // }
+    // const rows = await query.select("*")
+    //   .groupBy('master_metadata_track_name')
+    //   .limit(10);
 
     totalRows.value = (await new SpotifyModel().getCount()).toLocaleString();
-    dbTableData.value = rows;
+    dbTableData.value = topSongs;
   } catch (error) {
     alert(error);
   }
-}
-
-async function handleFileChange(event) {
-  const file = event.target.files[0];
-  const fileReader = new FileReader();
-  fileReader.readAsText(file);
-  fileReader.onload = async () => {
-    const data = JSON.parse(fileReader.result as string);
-    await insertRows(data);
-  };
-  fileInput.value = null;
 }
 
 function handleUpload() {
   alert("refresh now");
 }
-
 </script>
 <template>
   <div>
@@ -77,11 +56,8 @@ function handleUpload() {
     <DataUpload class="mb-5" @uploaded="handleUpload" />
     <button @click="truncateTable">Truncate table</button>
 
-    <h3 v-if="inserting">Inserting...</h3>
-    <input type="file" @change="handleFileChange" ref="fileInput" />
-
-    <input @keyup.enter="search" type="text" v-model="searchQuery" />
-    <button @click="() => search()">Search</button>
+    <input @keyup.enter="searchTopSongs" type="text" v-model="searchTopSongsQuery" />
+    <button @click="() => searchTopSongs()">SearchTopSongs</button>
     <table>
       <tbody>
         <tr>
@@ -91,7 +67,7 @@ function handleUpload() {
           <td>No data</td>
         </tr>
         <!-- <tr v-else-if="dbTableData.length > 100">
-          <td>Too many rows to display and I haven't bothered with pagination - maybe try searching?</td>
+          <td>Too many rows to display and I haven't bothered with pagination - maybe try searchTopSongsing?</td>
         </tr> -->
         <template v-else>
           <tr v-for="row in dbTableData.slice(0, 100)" :key="row.id">
