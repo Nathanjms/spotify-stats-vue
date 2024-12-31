@@ -1,6 +1,8 @@
-<script setup>
-import { db } from "../db";
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { db } from "@/db";
+import { SpotifyModel, SpotifyRecord } from "@/models/spotifyModel";
+import * as spotifyDataHelper from "@/lib/spotifyDataHelper";
 
 const fileInput = ref(null);
 
@@ -11,14 +13,12 @@ const totalRows = ref(0);
 const dbTableData = ref([]);
 
 const inserting = ref(false);
-async function insertRows(data) {
+const progress = ref(0);
+async function insertRows(data: SpotifyRecord[]) {
   inserting.value = true;
+  progress.value = 0;
   try {
-    // Chunk the data into batches of 1000:
-    for (let i = 0; i < data.length; i += 1000) {
-      const batch = data.slice(i, i + 1000);
-      await db("spotify_stats").insert(batch);
-    }
+    await spotifyDataHelper.insertRows(data);
   } catch (error) {
     alert(error);
   } finally {
@@ -28,7 +28,7 @@ async function insertRows(data) {
 
 async function truncateTable() {
   try {
-    await db("spotify_stats").truncate();
+    await new SpotifyModel().truncate();
     await search();
   } catch (error) {
     alert(error);
@@ -37,14 +37,13 @@ async function truncateTable() {
 
 async function search() {
   try {
-    const query = db("spotify_stats");
+    const query = new SpotifyModel().query();
     if (searchQuery.value) {
       query.where("master_metadata_album_artist_name", "like", `%${searchQuery.value}%`);
     }
     const rows = await query.select("*").limit(50);
-    
-    const totalRowQuery = await db("spotify_stats").count();
-    totalRows.value = totalRowQuery[0].count.toLocaleString();
+
+    totalRows.value = (await new SpotifyModel().getCount()).toLocaleString();
     dbTableData.value = rows;
   } catch (error) {
     alert(error);
@@ -56,7 +55,7 @@ async function handleFileChange(event) {
   const fileReader = new FileReader();
   fileReader.readAsText(file);
   fileReader.onload = async () => {
-    const data = JSON.parse(fileReader.result);
+    const data = JSON.parse(fileReader.result as string);
     await insertRows(data);
   };
   fileInput.value = null;

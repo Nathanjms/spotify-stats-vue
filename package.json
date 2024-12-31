@@ -12,6 +12,7 @@
     "@electric-sql/pglite": "^0.2.12",
     "knex": "^3.1.0",
     "knex-pglite": "^0.9.7",
+    "pinia": "^2.3.0",
     "vite-plugin-node-polyfills": "^0.22.0",
     "vue": "^3.5.12"
   },

@@ -1,3 +1,4 @@
+import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import vue from "@vitejs/plugin-vue";
@@ -12,5 +13,11 @@ export default defineConfig({
   ],
   optimizeDeps: {
     exclude: ["@electric-sql/pglite"],
+  },
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+    extensions: [".ts", ".js", ".vue"],
   },
 });
