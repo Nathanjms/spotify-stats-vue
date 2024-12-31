@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import { db } from "@/db";
 import { SpotifyModel, SpotifyRecord } from "@/models/spotifyModel";
 import * as spotifyDataHelper from "@/lib/spotifyDataHelper";
+import DataUpload from "./DataUpload.vue";
 
 const fileInput = ref(null);
 
@@ -39,9 +40,9 @@ async function search() {
   try {
     const query = new SpotifyModel().query();
     if (searchQuery.value) {
-      query.where("master_metadata_album_artist_name", "like", `%${searchQuery.value}%`);
+      query.where("master_metadata_album_artist_name", "ilike", `%${searchQuery.value}%`);
     }
-    const rows = await query.select("*").limit(50);
+    const rows = await query.select("*").limit(50000)
 
     totalRows.value = (await new SpotifyModel().getCount()).toLocaleString();
     dbTableData.value = rows;
@@ -60,11 +61,20 @@ async function handleFileChange(event) {
   };
   fileInput.value = null;
 }
+
+function handleUpload() {
+  alert("refresh now");
+}
+
 </script>
 <template>
   <div>
-    <h1>Spotify</h1>
-    <h2>{{ totalRows }} total rows</h2>
+    <div class="text-center">
+      <h1 class="text-4xl font-bold mb-4">Your Music History</h1>
+      <p class="text-xl mb-8">Upload your data file and visualize it instantly!</p>
+    </div>
+
+    <DataUpload class="mb-5" @uploaded="handleUpload" />
     <button @click="truncateTable">Truncate table</button>
 
     <h3 v-if="inserting">Inserting...</h3>
@@ -84,7 +94,7 @@ async function handleFileChange(event) {
           <td>Too many rows to display and I haven't bothered with pagination - maybe try searching?</td>
         </tr> -->
         <template v-else>
-          <tr v-for="row in dbTableData" :key="row.user">
+          <tr v-for="row in dbTableData.slice(0, 100)" :key="row.id">
             <td>
               <pre>{{ row }}</pre>
             </td>

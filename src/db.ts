@@ -9,14 +9,6 @@ export const db = knex({
 
 export async function initDb() {
   // If this is the first time the DB is created, then we need to create the tables:
-  if (!(await db.schema.hasTable("users"))) {
-    // Create a table
-    await db.schema.createTable("users", (table) => {
-      table.increments("id");
-      table.string("user_name");
-    });
-  }
-
   if (!(await db.schema.hasTable("spotify_stats"))) {
     await db.schema.createTable("spotify_stats", (table) => {
       table.increments("id");
@@ -26,6 +18,7 @@ export async function initDb() {
       table.string("master_metadata_album_album_name");
       table.string("spotify_track_uri");
 
+      table.index("ts");
       table.index("master_metadata_track_name");
       table.index("master_metadata_album_artist_name");
       table.index("master_metadata_album_album_name");

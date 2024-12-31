@@ -9,7 +9,7 @@ export async function insertRows(data: any[]) {
   }
 }
 
-function mapToInsert(data: any[]): SpotifyRecord[] {
+export function mapToInsert(data: any[]): SpotifyRecord[] {
   return data.map(
     (row) =>
       ({
